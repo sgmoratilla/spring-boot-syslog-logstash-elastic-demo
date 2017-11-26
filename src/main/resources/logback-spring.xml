@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!--    <include resource="org/springframework/boot/logging/logback/base.xml"/> -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+    <!-- <logger name="org.springframework.web" level="INFO"/> -->
+
+    <springProperty scope="context" name="LOGSTASH_HOST" source="logstash.host"/>
+    <springProperty scope="context" name="LOGSTASH_PORT" source="logstash.port"/>
+
+    <springProfile name="development, staging, pro">
+        <appender name="STASH" class="ch.qos.logback.classic.net.SyslogAppender">
+            <syslogHost>${LOGSTASH_HOST:-localhost}</syslogHost>
+            <port>${LOGSTASH_PORT:-51415}</port>
+            <facility>USER</facility>
+        </appender>
+    </springProfile>
+
+    <root level="ALL">
+        <springProfile name="local">
+            <appender-ref ref="CONSOLE"/>
+        </springProfile>
+        <springProfile name="development, staging, pro">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="STASH"/>
+        </springProfile>
+    </root>
+
+</configuration>
